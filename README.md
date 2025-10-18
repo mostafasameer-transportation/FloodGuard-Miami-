@@ -26,9 +26,9 @@ The platform visualizes real-time risk on an interactive dashboard and sends ale
 ---
 
 ### Demo & Assets
-- 🎥 **Pitch Video:** [Unlisted YouTube or Loom Link Here]
+- 🎥 **Pitch Video:** [https://youtu.be/-WFpfa3yMto]
 - 📑 **Pitch Deck:** [FloodGuard_PitchDeck.pdf]
-- 🗺️ **Presentation:** See the link: https://youtu.be/-WFpfa3yMto
+- 🗺️ **Presentation:** See the link
 
 ---
 
