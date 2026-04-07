@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FloodGuard Miami</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ocean:#0A2540;
+  --ocean-mid:#0D3560;
+  --wave:#1B5C8E;
+  --aqua:#00C2FF;
+  --aqua-dim:#007BB5;
+  --risk-low:#22C55E;
+  --risk-mod:#F59E0B;
+  --risk-high:#EF4444;
+  --risk-extreme:#DC2626;
+  --sand:#F5F0E8;
+  --sand-dark:#E8E0D0;
+  --text:#0A2540;
+  --muted:#4B6B8A;
+  --card:#FFFFFF;
+  --border:rgba(10,37,64,0.12);
+  --aqua-glow:rgba(0,194,255,0.15);
+}
+body{font-family:'Space Grotesk',sans-serif;background:var(--sand);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* NAV */
+nav{background:var(--ocean);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.08)}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo{width:32px;height:32px;background:var(--aqua);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.nav-logo svg{width:18px;height:18px}
+.nav-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+.nav-title span{color:var(--aqua)}
+.nav-links{display:flex;gap:0}
+.nav-link{color:rgba(255,255,255,0.6);font-size:13px;font-weight:500;padding:8px 14px;border-radius:6px;cursor:pointer;transition:all .2s;border:none;background:none}
+.nav-link:hover,.nav-link.active{color:#fff;background:rgba(255,255,255,0.08)}
+.nav-link.active{color:var(--aqua)}
+.nav-alert{background:var(--risk-mod);color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;letter-spacing:0.5px;animation:pulse-badge 2s infinite}
+@keyframes pulse-badge{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,var(--ocean) 0%,var(--ocean-mid) 45%,var(--wave) 100%);padding:4rem 2rem 3rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300'%3E%3Cpath d='M0 200Q300 120 600 200T1200 200V300H0Z' fill='rgba(0,194,255,0.06)'/%3E%3Cpath d='M0 230Q300 160 600 220T1200 230V300H0Z' fill='rgba(0,194,255,0.04)'/%3E%3C/svg%3E") center bottom/cover no-repeat;pointer-events:none}
+.hero-inner{max-width:900px;margin:0 auto;position:relative}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(0,194,255,0.12);border:1px solid rgba(0,194,255,0.25);color:var(--aqua);font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;letter-spacing:0.8px;margin-bottom:1.5rem}
+.hero-tag::before{content:'';width:6px;height:6px;background:var(--aqua);border-radius:50%;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:800;color:#fff;line-height:1.1;margin-bottom:.75rem;letter-spacing:-1px}
+h1 span{color:var(--aqua)}
+.hero-sub{color:rgba(255,255,255,0.65);font-size:15px;font-weight:400;max-width:500px;line-height:1.6;margin-bottom:2rem}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{background:var(--aqua);color:var(--ocean);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;transition:all .2s;letter-spacing:-.2px}
+.btn-primary:hover{background:#33CCFF;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;padding:12px 24px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);cursor:pointer;transition:all .2s}
+.btn-outline:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.4)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);border-radius:12px;margin-top:2.5rem;overflow:hidden}
+.hero-stat{background:rgba(255,255,255,0.03);padding:1.2rem;text-align:center}
+.hero-stat-val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;display:block}
+.hero-stat-label{font-size:11px;color:rgba(255,255,255,0.45);font-weight:500;letter-spacing:.5px;margin-top:2px;display:block}
+
+/* ALERT BAR */
+.alert-bar{background:linear-gradient(90deg,#7B2D00,#B54200);color:#fff;padding:.7rem 2rem;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:500}
+.alert-icon{width:20px;height:20px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700}
+.alert-bar strong{font-weight:700}
+.alert-bar .alert-close{margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:18px;line-height:1;padding:0 4px}
+.alert-bar .alert-close:hover{color:#fff}
+
+/* MAIN LAYOUT */
+.main{max-width:1100px;margin:0 auto;padding:2rem}
+.section-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--ocean);margin-bottom:1.25rem;letter-spacing:-.5px}
+.section-sub{font-size:13px;color:var(--muted);margin-top:-.75rem;margin-bottom:1.25rem}
+
+/* DASHBOARD GRID */
+.dashboard-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto;gap:16px;margin-bottom:2rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 24px rgba(10,37,64,0.08)}
+.card-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:.5rem}
+.card-value{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--ocean);line-height:1}
+.card-unit{font-size:13px;font-weight:500;color:var(--muted);margin-left:4px}
+.card-delta{font-size:12px;margin-top:.4rem;font-weight:500}
+.card-delta.up{color:var(--risk-high)}
+.card-delta.down{color:var(--risk-low)}
+.card-delta.neutral{color:var(--muted)}
+.card-chart{height:48px;margin-top:.75rem}
+.sparkline{width:100%;height:100%}
+
+/* RISK MAP CARD */
+.map-card{grid-column:1/3;grid-row:2/4;min-height:320px}
+.map-container{background:linear-gradient(145deg,#0A2540 0%,#0D3560 40%,#0F4070 100%);border-radius:10px;height:280px;position:relative;overflow:hidden;margin-top:.75rem}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,194,255,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,194,255,0.05) 1px,transparent 1px);background-size:40px 40px}
+.map-label{position:absolute;top:10px;left:12px;color:rgba(255,255,255,0.4);font-size:10px;font-weight:600;letter-spacing:.8px}
+.map-compass{position:absolute;top:10px;right:12px;width:28px;height:28px;border:1px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);font-size:10px;font-weight:700}
+/* Miami neighborhood blobs */
+.zone{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.zone:hover{transform:scale(1.12);z-index:10}
+.zone-label{font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.zone-val{font-size:11px;font-weight:800;color:#fff;font-family:'DM Mono',monospace}
+/* Risk color blobs */
+.z-extreme{background:radial-gradient(circle,rgba(220,38,38,.85) 0%,rgba(220,38,38,.4) 70%);box-shadow:0 0 20px rgba(220,38,38,.4)}
+.z-high{background:radial-gradient(circle,rgba(239,68,68,.75) 0%,rgba(239,68,68,.3) 70%);box-shadow:0 0 16px rgba(239,68,68,.3)}
+.z-mod{background:radial-gradient(circle,rgba(245,158,11,.75) 0%,rgba(245,158,11,.3) 70%);box-shadow:0 0 14px rgba(245,158,11,.3)}
+.z-low{background:radial-gradient(circle,rgba(34,197,94,.7) 0%,rgba(34,197,94,.3) 70%);box-shadow:0 0 12px rgba(34,197,94,.3)}
+/* coastline decoration */
+.coast-line{position:absolute;bottom:60px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,194,255,.3),rgba(0,194,255,.5),rgba(0,194,255,.3),transparent)}
+.water-area{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,rgba(0,100,180,0.15),rgba(0,60,140,0.3));border-top:1px solid rgba(0,194,255,0.2)}
+.water-label{position:absolute;bottom:18px;right:16px;color:rgba(0,194,255,0.5);font-size:9px;font-weight:700;letter-spacing:1.5px}
+/* map legend */
+.map-legend{position:absolute;bottom:74px;right:12px;background:rgba(10,37,64,0.85);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 8px;display:flex;flex-direction:column;gap:3px}
+.legend-row{display:flex;align-items:center;gap:5px;font-size:9px;color:rgba(255,255,255,0.6);font-weight:600}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* NEIGHBORHOOD RISK TABLE */
+.risk-table-card{grid-column:3/4;grid-row:2/4}
+.risk-list{display:flex;flex-direction:column;gap:8px;margin-top:.75rem}
+.risk-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sand);border-radius:8px;cursor:pointer;transition:background .15s}
+.risk-item:hover{background:var(--sand-dark)}
+.risk-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.risk-name{flex:1;font-size:13px;font-weight:600;color:var(--ocean)}
+.risk-score{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--muted)}
+.risk-bar-wrap{width:60px;height:4px;background:rgba(10,37,64,0.08);border-radius:2px;overflow:hidden}
+.risk-bar-fill{height:100%;border-radius:2px}
+
+/* METRICS ROW */
+.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem}
+
+/* ALERTS SECTION */
+.alerts-section{margin-bottom:2rem}
+.alerts-list{display:flex;flex-direction:column;gap:10px}
+.alert-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:10px;border:1px solid;cursor:pointer;transition:opacity .15s}
+.alert-item:hover{opacity:.85}
+.alert-item.extreme{background:#FEF2F2;border-color:#FECACA}
+.alert-item.high{background:#FFF7ED;border-color:#FED7AA}
+.alert-item.moderate{background:#FEFCE8;border-color:#FEF08A}
+.alert-item.low{background:#F0FDF4;border-color:#BBF7D0}
+.alert-icon-wrap{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.alert-item.extreme .alert-icon-wrap{background:#FEE2E2;color:#DC2626}
+.alert-item.high .alert-icon-wrap{background:#FED7AA;color:#D97706}
+.alert-item.moderate .alert-icon-wrap{background:#FEF08A;color:#B45309}
+.alert-item.low .alert-icon-wrap{background:#BBF7D0;color:#15803D}
+.alert-body{flex:1}
+.alert-title{font-size:14px;font-weight:700;color:var(--ocean);margin-bottom:2px}
+.alert-desc{font-size:12px;color:var(--muted);line-height:1.4}
+.alert-time{font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace}
+.alert-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;letter-spacing:.4px;white-space:nowrap;align-self:flex-start;margin-top:2px}
+.alert-item.extreme .alert-badge{background:#DC2626;color:#fff}
+.alert-item.high .alert-badge{background:#D97706;color:#fff}
+.alert-item.moderate .alert-badge{background:#B45309;color:#fff}
+.alert-item.low .alert-badge{background:#15803D;color:#fff}
+
+/* COMMUNITY REPORTING */
+.report-section{margin-bottom:2rem}
+.report-form{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;gap:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.3px}
+.form-group input,.form-group select,.form-group textarea{font-family:'Space Grotesk',sans-serif;font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--sand);color:var(--text);outline:none;transition:border .15s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--aqua-dim);background:#fff}
+.form-group textarea{resize:vertical;min-height:70px}
+.severity-options{display:flex;gap:8px}
+.sev-btn{flex:1;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--sand);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--muted)}
+.sev-btn.active-low{background:#F0FDF4;border-color:#22C55E;color:#15803D}
+.sev-btn.active-mod{background:#FEFCE8;border-color:#F59E0B;color:#B45309}
+.sev-btn.active-high{background:#FFF7ED;border-color:#EF4444;color:#DC2626}
+.submit-row{display:flex;align-items:center;gap:12px}
+.btn-submit{background:var(--ocean);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;padding:11px 28px;border-radius:8px;border:none;cursor:pointer;transition:all .2s}
+.btn-submit:hover{background:var(--ocean-mid)}
+.recent-reports{margin-top:1rem}
+.report-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--aqua-glow);color:var(--aqua-dim);letter-spacing:.4px}
+
+/* TIMELINE */
+.timeline-section{margin-bottom:2rem}
+.timeline-chart{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
+.chart-svg{width:100%;height:160px}
+
+/* FOUNDER + LINKS */
+.founder-section{background:var(--ocean);border-radius:16px;padding:2rem;margin-bottom:2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+.founder-avatar{width:64px;height:64px;background:linear-gradient(135deg,var(--aqua),#0066AA);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;flex-shrink:0}
+.founder-info{flex:1;min-width:200px}
+.founder-name{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:#fff;margin-bottom:3px}
+.founder-role{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.5}
+.founder-links{display:flex;gap:10px;flex-wrap:wrap}
+.link-chip{display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.8);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;text-decoration:none;background:rgba(255,255,255,0.05)}
+.link-chip:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.3)}
+.link-chip .lc-icon{font-size:15px}
+
+/* FOOTER */
+footer{background:var(--ocean);padding:1.5rem 2rem;text-align:center;color:rgba(255,255,255,.35);font-size:12px;letter-spacing:.3px}
+footer strong{color:var(--aqua)}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:1.5rem;background:rgba(10,37,64,.06);padding:4px;border-radius:10px;width:fit-content}
+.tab{padding:7px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:none;background:none;color:var(--muted)}
+.tab.active{background:#fff;color:var(--ocean);box-shadow:0 1px 6px rgba(10,37,64,.1)}
+
+/* NOAA live badge */
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D;font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;letter-spacing:.5px}
+.live-dot{width:5px;height:5px;background:#22C55E;border-radius:50%;animation:blink 1.2s infinite}
+
+/* Popup tooltip */
+.tooltip{position:absolute;background:rgba(10,37,64,0.95);color:#fff;font-size:12px;font-weight:600;padding:8px 12px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:20;border:1px solid rgba(0,194,255,0.2);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0A2540" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0" transform="translate(-3,2)"/>
+        <path d="M6 18c2-4 4-4 6 0s4 4 6 0" transform="translate(-3,0)"/>
+      </svg>
+    </div>
+    <span class="nav-title">Flood<span>Guard</span> Miami</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="nav-link" onclick="switchTab('alerts')">Alerts <span class="nav-alert">3</span></button>
+    <button class="nav-link" onclick="switchTab('report')">Report</button>
+    <button class="nav-link" onclick="switchTab('about')">About</button>
+  </div>
+</nav>
+
+<!-- ALERT BAR -->
+<div class="alert-bar" id="alert-bar">
+  <div class="alert-icon">⚠</div>
+  <div><strong>King Tide Advisory</strong> — Brickell, Downtown & Miami Beach at elevated flood risk tonight through 11 PM. Avoid low-lying areas.</div>
+  <button class="alert-close" onclick="document.getElementById('alert-bar').style.display='none'">×</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">LIVE MONITORING</div>
+    <h1>Predict. Prepare.<br><span>Protect Miami.</span></h1>
+    <p class="hero-sub">Real-time flood risk intelligence powered by NOAA tidal data, community reports, and AI risk scoring — built for every neighborhood.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="switchTab('dashboard')">View Live Dashboard</button>
+      <button class="btn-outline" onclick="switchTab('report')">Submit Flood Report</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="hero-stat-val">47</span><span class="hero-stat-label">Neighborhoods tracked</span></div>
+      <div class="hero-stat"><span class="hero-stat-val">2.4"</span><span class="hero-stat-label">24hr rainfall</span></div>
+      <div class="hero-stat"><span class="hero-stat-val">98%</span><span class="hero-stat-label">Uptime SLA</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT (tabs) -->
+<div class="main">
+
+<!-- DASHBOARD TAB -->
+<div id="tab-dashboard">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+    <span class="section-title" style="margin-bottom:0">Live Risk Dashboard</span>
+    <span class="live-badge"><span class="live-dot"></span>NOAA LIVE</span>
+  </div>
+
+  <!-- Metric cards -->
+  <div class="metrics-row">
+    <div class="card">
+      <div class="card-label">Sea Level Anomaly</div>
+      <div class="card-value">+1.3<span class="card-unit">ft</span></div>
+      <div class="card-delta up">↑ +0.4ft from 24h avg</div>
+      <div class="card-chart">
+        <svg class="sparkline" viewBox="0 0 140 48" preserveAspectRatio="none">
+          <polyline points="0,38 20,35 40,32 60,28 80,22 100,18 120,14 140,10" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="0,38 20,35 40,32 60,28 80,22 100,18 120,14 140,10 140,48 0,48" fill="rgba(239,68,68,0.08)" stroke="none"/>
+        </svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Current Rainfall</div>
+      <div class="card-value">2.4<span class="card-unit">in/24h</span></div>
+      <div class="card-delta up">↑ Heavy — 90th percentile</div>
+      <div class="card-chart">
+        <svg class="sparkline" viewBox="0 0 140 48" preserveAspectRatio="none">
+          <rect x="0" y="44" width="12" height="4" fill="rgba(59,139,212,0.3)" rx="1"/>
+          <rect x="14" y="40" width="12" height="8" fill="rgba(59,139,212,0.3)" rx="1"/>
+          <rect x="28" y="36" width="12" height="12" fill="rgba(59,139,212,0.4)" rx="1"/>
+          <rect x="42" y="30" width="12" height="18" fill="rgba(59,139,212,0.5)" rx="1"/>
+          <rect x="56" y="20" width="12" height="28" fill="rgba(59,139,212,0.6)" rx="1"/>
+          <rect x="70" y="14" width="12" height="34" fill="rgba(59,139,212,0.7)" rx="1"/>
+          <rect x="84" y="18" width="12" height="30" fill="rgba(59,139,212,0.65)" rx="1"/>
+          <rect x="98" y="22" width="12" height="26" fill="rgba(59,139,212,0.6)" rx="1"/>
+          <rect x="112" y="26" width="12" height="22" fill="rgba(59,139,212,0.5)" rx="1"/>
+          <rect x="126" y="28" width="14" height="20" fill="rgba(59,139,212,0.5)" rx="1"/>
+        </svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Overall Risk Index</div>
+      <div class="card-value" style="color:#D97706">74<span class="card-unit">/ 100</span></div>
+      <div class="card-delta up" style="color:#D97706">▲ HIGH — King Tide active</div>
+      <div class="card-chart">
+        <div style="margin-top:10px;height:28px;background:linear-gradient(90deg,#22C55E 0%,#F59E0B 50%,#EF4444 75%,#DC2626 100%);border-radius:4px;position:relative">
+          <div style="position:absolute;top:-6px;left:72%;transform:translateX(-50%)">
+            <div style="width:3px;height:40px;background:var(--ocean);border-radius:2px;margin:0 auto"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map + Risk Table -->
+  <div class="dashboard-grid">
+
+    <!-- Risk Map -->
+    <div class="card map-card" style="grid-column:1/3;grid-row:1/2">
+      <div class="card-label">Neighborhood Flood Risk Map — Miami-Dade County</div>
+      <div class="map-container" id="mapContainer">
+        <div class="map-grid"></div>
+        <div class="map-label">MIAMI-DADE</div>
+        <div class="map-compass">N</div>
+        <!-- Coastline & water -->
+        <div class="coast-line"></div>
+        <div class="water-area"></div>
+        <div class="water-label">BISCAYNE BAY / ATLANTIC</div>
+        <!-- Risk zones -->
+        <div class="zone z-extreme" style="width:80px;height:80px;left:54%;top:28%" onclick="showZone('Brickell','92','Extreme')">
+          <span class="zone-val">92</span>
+          <span class="zone-label">Brickell</span>
+        </div>
+        <div class="zone z-extreme" style="width:72px;height:72px;left:64%;top:18%" onclick="showZone('Miami Beach','88','Extreme')">
+          <span class="zone-val">88</span>
+          <span class="zone-label">Miami Beach</span>
+        </div>
+        <div class="zone z-high" style="width:68px;height:68px;left:42%;top:34%" onclick="showZone('Downtown','78','High')">
+          <span class="zone-val">78</span>
+          <span class="zone-label">Downtown</span>
+        </div>
+        <div class="zone z-high" style="width:65px;height:65px;left:30%;top:44%" onclick="showZone('Little Havana','71','High')">
+          <span class="zone-val">71</span>
+          <span class="zone-label">L. Havana</span>
+        </div>
+        <div class="zone z-mod" style="width:60px;height:60px;left:18%;top:30%" onclick="showZone('Wynwood','54','Moderate')">
+          <span class="zone-val">54</span>
+          <span class="zone-label">Wynwood</span>
+        </div>
+        <div class="zone z-mod" style="width:58px;height:58px;left:10%;top:50%" onclick="showZone('Allapattah','48','Moderate')">
+          <span class="zone-val">48</span>
+          <span class="zone-label">Allapattah</span>
+        </div>
+        <div class="zone z-low" style="width:56px;height:56px;left:22%;top:14%" onclick="showZone('Design District','31','Low')">
+          <span class="zone-val">31</span>
+          <span class="zone-label">Design Dist.</span>
+        </div>
+        <div class="zone z-low" style="width:54px;height:54px;left:6%;top:18%" onclick="showZone('Edgewater','27','Low')">
+          <span class="zone-val">27</span>
+          <span class="zone-label">Edgewater</span>
+        </div>
+        <!-- Legend -->
+        <div class="map-legend">
+          <div class="legend-row"><div class="legend-dot" style="background:#DC2626"></div>Extreme (85+)</div>
+          <div class="legend-row"><div class="legend-dot" style="background:#EF4444"></div>High (65–84)</div>
+          <div class="legend-row"><div class="legend-dot" style="background:#F59E0B"></div>Moderate (40–64)</div>
+          <div class="legend-row"><div class="legend-dot" style="background:#22C55E"></div>Low (0–39)</div>
+        </div>
+        <!-- Tooltip -->
+        <div class="tooltip" id="mapTooltip"></div>
+      </div>
+    </div>
+
+    <!-- Risk Table -->
+    <div class="card risk-table-card" style="grid-column:3/4;grid-row:1/2">
+      <div class="card-label">Neighborhood Rankings</div>
+      <div class="risk-list">
+        <div class="risk-item"><div class="risk-dot" style="background:#DC2626"></div><span class="risk-name">Brickell</span><span class="risk-score">92</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:92%;background:#DC2626"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#DC2626"></div><span class="risk-name">Miami Beach</span><span class="risk-score">88</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:88%;background:#DC2626"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#EF4444"></div><span class="risk-name">Downtown</span><span class="risk-score">78</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:78%;background:#EF4444"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#EF4444"></div><span class="risk-name">Little Havana</span><span class="risk-score">71</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:71%;background:#EF4444"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#EF4444"></div><span class="risk-name">Coconut Grove</span><span class="risk-score">66</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:66%;background:#EF4444"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#F59E0B"></div><span class="risk-name">Wynwood</span><span class="risk-score">54</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:54%;background:#F59E0B"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#F59E0B"></div><span class="risk-name">Allapattah</span><span class="risk-score">48</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:48%;background:#F59E0B"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#22C55E"></div><span class="risk-name">Design District</span><span class="risk-score">31</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:31%;background:#22C55E"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#22C55E"></div><span class="risk-name">Edgewater</span><span class="risk-score">27</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:27%;background:#22C55E"></div></div></div>
+        <div class="risk-item"><div class="risk-dot" style="background:#22C55E"></div><span class="risk-name">Coral Gables</span><span class="risk-score">19</span><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:19%;background:#22C55E"></div></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 7-day forecast chart -->
+  <div class="timeline-section">
+    <div class="section-title">7-Day Flood Risk Forecast</div>
+    <div class="timeline-chart">
+      <svg class="chart-svg" viewBox="0 0 800 160" preserveAspectRatio="xMidYMid meet">
+        <!-- grid lines -->
+        <line x1="60" y1="20" x2="760" y2="20" stroke="rgba(10,37,64,0.06)" stroke-width="1"/>
+        <line x1="60" y1="55" x2="760" y2="55" stroke="rgba(10,37,64,0.06)" stroke-width="1"/>
+        <line x1="60" y1="90" x2="760" y2="90" stroke="rgba(10,37,64,0.06)" stroke-width="1"/>
+        <line x1="60" y1="125" x2="760" y2="125" stroke="rgba(10,37,64,0.06)" stroke-width="1"/>
+        <!-- Y labels -->
+        <text x="50" y="24" text-anchor="end" font-family="DM Mono" font-size="10" fill="rgba(10,37,64,0.35)">100</text>
+        <text x="50" y="59" text-anchor="end" font-family="DM Mono" font-size="10" fill="rgba(10,37,64,0.35)">75</text>
+        <text x="50" y="94" text-anchor="end" font-family="DM Mono" font-size="10" fill="rgba(10,37,64,0.35)">50</text>
+        <text x="50" y="129" text-anchor="end" font-family="DM Mono" font-size="10" fill="rgba(10,37,64,0.35)">25</text>
+        <!-- area fill -->
+        <defs>
+          <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#EF4444" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#EF4444" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M60,55 L160,38 L260,27 L360,45 L460,70 L560,90 L660,105 L760,112 L760,125 L60,125Z" fill="url(#chartGrad)"/>
+        <!-- line -->
+        <polyline points="60,55 160,38 260,27 360,45 460,70 560,90 660,105 760,112" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- data points -->
+        <circle cx="60"  cy="55"  r="5" fill="#EF4444" stroke="#fff" stroke-width="2"/>
+        <circle cx="160" cy="38"  r="5" fill="#DC2626" stroke="#fff" stroke-width="2"/>
+        <circle cx="260" cy="27"  r="5" fill="#DC2626" stroke="#fff" stroke-width="2"/>
+        <circle cx="360" cy="45"  r="5" fill="#EF4444" stroke="#fff" stroke-width="2"/>
+        <circle cx="460" cy="70"  r="5" fill="#F59E0B" stroke="#fff" stroke-width="2"/>
+        <circle cx="560" cy="90"  r="5" fill="#F59E0B" stroke="#fff" stroke-width="2"/>
+        <circle cx="660" cy="105" r="5" fill="#22C55E" stroke="#fff" stroke-width="2"/>
+        <circle cx="760" cy="112" r="5" fill="#22C55E" stroke="#fff" stroke-width="2"/>
+        <!-- x labels -->
+        <text x="60"  y="148" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(10,37,64,0.5)" font-weight="600">Mon</text>
+        <text x="160" y="148" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(10,37,64,0.5)" font-weight="600">Tue</text>
+        <text x="260" y="148" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(10,37,64,0.5)" font-weight="600">Wed</text>
+        <text x="360" y="148" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(10,37,64,0.5)" font-weight="600">Thu</text>
+        <text x="460" y="148" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(10,37,64,0.5)" font-weight="600">Fri</text>
+        <text x="560" y="148" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(10,37,64,0.5)" font-weight="600">Sat</text>
+        <text x="660" y="148" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(10,37,64,0.5)" font-weight="600">Sun</text>
+        <text x="760" y="148" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(10,37,64,0.5)" font-weight="600">Mon</text>
+        <!-- TODAY marker -->
+        <line x1="60" y1="18" x2="60" y2="130" stroke="rgba(10,37,64,0.2)" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="60" y="14" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="rgba(10,37,64,0.4)" font-weight="700" letter-spacing="0.5">TODAY</text>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<!-- ALERTS TAB -->
+<div id="tab-alerts" style="display:none">
+  <div class="section-title">Active Alerts</div>
+  <p class="section-sub">3 active alerts · Last updated 4 minutes ago</p>
+  <div class="alerts-list">
+    <div class="alert-item extreme">
+      <div class="alert-icon-wrap">⚠</div>
+      <div class="alert-body">
+        <div class="alert-title">Extreme Flood Risk — Brickell & Downtown</div>
+        <div class="alert-desc">King tide combining with heavy rainfall to produce street flooding. Expect 6–12 inches of standing water on Brickell Ave and SE 2nd St. Avoid driving through flooded roads.</div>
+        <div class="alert-time">Issued: Today, 6:42 PM · Expires: Tonight 11:00 PM</div>
+      </div>
+      <div class="alert-badge">EXTREME</div>
+    </div>
+    <div class="alert-item high">
+      <div class="alert-icon-wrap">▲</div>
+      <div class="alert-body">
+        <div class="alert-title">High Tide Advisory — Miami Beach</div>
+        <div class="alert-desc">NOAA tidal gauge at Virginia Key showing +1.3ft above mean higher high water. Ocean Drive and Collins Ave may experience minor overwash through the evening. Residents advised to move vehicles to higher ground.</div>
+        <div class="alert-time">Issued: Today, 5:15 PM · Expires: Tomorrow 2:00 AM</div>
+      </div>
+      <div class="alert-badge">HIGH</div>
+    </div>
+    <div class="alert-item moderate">
+      <div class="alert-icon-wrap">~</div>
+      <div class="alert-body">
+        <div class="alert-title">Drainage System Capacity Warning — Little Havana</div>
+        <div class="alert-desc">Stormwater infrastructure at 87% capacity due to sustained rainfall. Residents near SW 8th Street and SW 17th Ave should monitor local drainage. No road closures at this time.</div>
+        <div class="alert-time">Issued: Today, 3:00 PM · Ongoing</div>
+      </div>
+      <div class="alert-badge">MODERATE</div>
+    </div>
+    <div class="alert-item low">
+      <div class="alert-icon-wrap">i</div>
+      <div class="alert-body">
+        <div class="alert-title">Watch lifted — Coral Gables</div>
+        <div class="alert-desc">Previous moderate risk watch has been downgraded. Rainfall totals below threshold. No action required.</div>
+        <div class="alert-time">Updated: Today, 7:10 PM</div>
+      </div>
+      <div class="alert-badge">RESOLVED</div>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT TAB -->
+<div id="tab-report" style="display:none">
+  <div class="section-title">Submit Flood Report</div>
+  <p class="section-sub">Your report helps improve AI risk scoring for your neighborhood in real time.</p>
+  <div class="report-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Neighborhood</label>
+        <select>
+          <option>Select neighborhood...</option>
+          <option>Brickell</option>
+          <option>Downtown Miami</option>
+          <option>Miami Beach</option>
+          <option>Little Havana</option>
+          <option>Wynwood</option>
+          <option>Coconut Grove</option>
+          <option>Coral Gables</option>
+          <option>Allapattah</option>
+          <option>Design District</option>
+          <option>Edgewater</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Flood Type</label>
+        <select>
+          <option>Select type...</option>
+          <option>Street flooding</option>
+          <option>Property flooding</option>
+          <option>Road closure</option>
+          <option>Drainage backup</option>
+          <option>Sewer overflow</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Severity</label>
+      <div class="severity-options">
+        <button class="sev-btn" onclick="setSev(this,'active-low')">Low — Ankle deep</button>
+        <button class="sev-btn" onclick="setSev(this,'active-mod')">Moderate — Knee deep</button>
+        <button class="sev-btn" onclick="setSev(this,'active-high')">High — Impassable</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Street address or cross street</label>
+      <input type="text" placeholder="e.g. Brickell Ave & SE 8th St">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea placeholder="Describe what you're seeing — water depth, affected streets, any road closures..."></textarea>
+    </div>
+    <div class="submit-row">
+      <button class="btn-submit" onclick="submitReport()">Submit Report</button>
+      <span style="font-size:12px;color:var(--muted)">Reports are reviewed and integrated into the risk model within minutes.</span>
+    </div>
+  </div>
+
+  <div class="recent-reports">
+    <div style="display:flex;align-items:center;gap:10px;margin:1.5rem 0 .75rem">
+      <span class="section-title" style="margin-bottom:0;font-size:1rem">Recent Community Reports</span>
+      <span class="report-tag">LIVE FEED</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="risk-item" style="border-left:3px solid #DC2626;border-radius:0 8px 8px 0">
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--ocean)">Brickell Ave — Street flooding</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Knee-deep water at intersection with SE 10th St. Cars stuck.</div></div>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">8 min ago</span>
+      </div>
+      <div class="risk-item" style="border-left:3px solid #EF4444;border-radius:0 8px 8px 0">
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--ocean)">Miami Beach — Collins Ave overwash</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Ankle-high ocean water on Collins near 5th St. Moving north.</div></div>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">22 min ago</span>
+      </div>
+      <div class="risk-item" style="border-left:3px solid #F59E0B;border-radius:0 8px 8px 0">
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--ocean)">Little Havana — Drainage backup</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Storm drain overflowing near SW 8th. Not passable by foot.</div></div>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">41 min ago</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT TAB -->
+<div id="tab-about" style="display:none">
+  <div class="section-title">About FloodGuard Miami</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:2rem">
+    <div class="card">
+      <div class="card-label">The Problem</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.7;margin-top:.5rem">Miami faces chronic flooding from sea-level rise, heavy rainfall, and king tides. Existing flood tools are static, outdated, and lack real-time local insights that residents and planners actually need.</div>
+    </div>
+    <div class="card">
+      <div class="card-label">The Solution</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.7;margin-top:.5rem">FloodGuard integrates NOAA and USGS data with local flood reports and uses no-code AI workflows to generate a neighborhood-level flood risk index — visualized in real-time and delivered via alerts.</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Impact Goals</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.7;margin-top:.5rem">Reduce property loss by up to <strong>20% annually</strong>. Empower residents and city planners with actionable insights. Support Miami's <strong>2050 Climate Resilience</strong> goals.</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Data Sources</div>
+      <div style="font-size:14px;color:var(--muted);line-height:1.7;margin-top:.5rem">NOAA tidal gauges · USGS stream data · Miami-Dade stormwater network · Community flood reports · National Weather Service rainfall data.</div>
+    </div>
+  </div>
+
+  <!-- Founder -->
+  <div class="founder-section">
+    <div class="founder-avatar">MS</div>
+    <div class="founder-info">
+      <div class="founder-name">Mostafa Sameer</div>
+      <div class="founder-role">Civil Engineer · Focused on flood resilience, no-code solutions,<br>and smart infrastructure for Miami</div>
+    </div>
+    <div class="founder-links">
+      <a href="https://youtu.be/-WFpfa3yMto" class="link-chip" target="_blank">
+        <span class="lc-icon">▶</span> Pitch Video
+      </a>
+      <a href="#" class="link-chip">
+        <span class="lc-icon">↗</span> Pitch Deck PDF
+      </a>
+      <a href="#" class="link-chip">
+        <span class="lc-icon">◉</span> Presentation
+      </a>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- end .main -->
+
+<footer>
+  Built with NOAA · USGS · Community Reports · AI Risk Scoring &nbsp;·&nbsp; <strong>FloodGuard Miami</strong> &nbsp;·&nbsp; Predict. Prepare. Protect.
+</footer>
+
+<script>
+function switchTab(tab) {
+  ['dashboard','alerts','report','about'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+  const idx = {'dashboard':0,'alerts':1,'report':2,'about':3}[tab];
+  document.querySelectorAll('.nav-link')[idx].classList.add('active');
+}
+
+function showZone(name, score, level) {
+  const colors = {Extreme:'#DC2626',High:'#EF4444',Moderate:'#F59E0B',Low:'#22C55E'};
+  const t = document.getElementById('mapTooltip');
+  t.innerHTML = `<strong>${name}</strong> — Risk: <span style="color:${colors[level]}">${score} ${level}</span>`;
+  t.style.opacity = '1';
+  t.style.left = '50%'; t.style.top = '8px'; t.style.transform = 'translateX(-50%)';
+  setTimeout(()=>{ t.style.opacity='0'; }, 2500);
+}
+
+function setSev(btn, cls) {
+  document.querySelectorAll('.sev-btn').forEach(b => b.className='sev-btn');
+  btn.className = 'sev-btn ' + cls;
+}
+
+function submitReport() {
+  const btn = event.target;
+  btn.textContent = 'Submitted! ✓';
+  btn.style.background = '#22C55E';
+  setTimeout(()=>{ btn.textContent='Submit Report'; btn.style.background=''; }, 3000);
+}
+</script>
+</body>
+</html>
